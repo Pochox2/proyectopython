@@ -13,7 +13,7 @@ def open_data(DB):
                DB = json.loads(content)
                return DB
 
-DB = open_data(DB)
+# DB = open_data(DB)
 
 def show_data(DB):
        print("Datos registrados: ", DB)
