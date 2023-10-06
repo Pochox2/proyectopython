@@ -1,0 +1,20 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+
+        {% if miForm.errors %}
+
+        <p style="color: red">Ocurrio un error en alguno de los campos, por favor revisar</p>
+
+        {% endif %}
+
+        <form action="" method="POST">{% csrf_token %}
+            <table>
+             {{miForm.as_table}}
+            </table>
+            <input type="submit" value="Enviar">
+        </form>
+
+    {% endblock %}

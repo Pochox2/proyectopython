@@ -55,7 +55,7 @@ ROOT_URLCONF = 'Entrega.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [r"C:\Users\Administrador\Desktop\coderhouse\python\entrega2\Entrega\Entrega\plantillas"],
+        'DIRS': [r"C:\Users\Administrador\Desktop\coderhouse\python\entrega2\Entrega\AppCsgo\plantillas\AppCsgo"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

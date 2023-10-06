@@ -1,24 +1,19 @@
 from django.db import models
 
-class Curso(models.Model):
+
+class Jugador(models.Model):
     nombre = models.CharField(max_length=40)
-    camada = models.IntegerField()
+    armafav = models.CharField(max_length=30)
+    recordkill = models.IntegerField()
 
 
-class Estudiante(models.Model):
+class Mapa(models.Model):
+    nombre = models.CharField(max_length=20)
+    descripcion = models.CharField(max_length=50)
+
+
+
+class Arma(models.Model):
     nombre = models.CharField(max_length=40)
-    apellido = models.CharField(max_length=30)
-    email = models.EmailField()
-
-
-class Profesor(models.Model):
-    nombre = models.CharField(max_length=40)
-    apellido = models.CharField(max_length=30)
-    email = models.EmailField()
-    profesion = models.CharField(max_length=30)
-
-
-class Entregable(models.Model):
-    nombre = models.CharField(max_length=40)
-    fechaDeEntrega = models.DateField()
-    entregado = models.BooleanField()
+    lado = models.CharField(max_length=10)
+    balas = models.IntegerField()
