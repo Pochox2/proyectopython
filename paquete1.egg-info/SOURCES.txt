@@ -1,7 +1,0 @@
-setup.py
-paquete1/comprador.py
-paquete1/manejousers.py
-paquete1.egg-info/PKG-INFO
-paquete1.egg-info/SOURCES.txt
-paquete1.egg-info/dependency_links.txt
-paquete1.egg-info/top_level.txt
