@@ -1,0 +1,18 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+    <section>
+
+
+        <form method="post"> {% csrf_token %}
+
+            ¿Estas seguro que deseas borrar el mapa "{{object}}"?
+            <input type="submit" value="Submit">
+        </form>
+
+        
+    </section>
+
+    {% endblock %}
