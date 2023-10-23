@@ -1,0 +1,19 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+    <title> Creacion de blog </title>
+    <section>
+        <h2>Crear un blog</h2>
+        <form method="post" class="blog_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btncontainer">
+                <button type="submit" class="btn_crear">Crear</button>
+                <button href="{% url 'Inicio' %}" class="btn_volver">Volver</button>
+            </div>
+        </form>
+    </section>
+
+    {% endblock %}

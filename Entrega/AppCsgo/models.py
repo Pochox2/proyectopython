@@ -1,28 +1,30 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 
-class Jugador(models.Model):
-    nombre = models.CharField(max_length=40)
-    armafav = models.CharField(max_length=30)
-    recordkill = models.IntegerField()
+
+class Blog(models.Model):
+    titulo = models.CharField(max_length=25)
+    subtitulo = models.CharField(max_length=30)
+    cuerpo = models.TextField(null=True, blank=True)
+    autor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    fecha = models.TextField(default=timezone.now())
+    imagen = models.ImageField(null=True, blank=True, upload_to="media/")
+    
+    class Meta: ordering = ["titulo", "-fecha"]
+
+    def __str__(self):
+        return f"Titulo: {self.titulo} - Autor: {self.autor}"
+
+
+
+class Comentario(models.Model):
+    comentario = models.ForeignKey(Blog, related_name="comentarios", on_delete=models.CASCADE, null=True, blank=True)
+    autor = models.CharField(max_length=25)
+    contenido = models.TextField(null=True, blank=True)
+    fecha = models.TextField(default=timezone.now())
+    class Meta: ordering = ["-fecha"]
     
     def __str__(self):
-        return f"Nombre: {self.nombre} - Arma favorita: {self.armafav} - Record de kills {self.recordkill}"
-
-
-class Mapa(models.Model):
-    nombre = models.CharField(max_length=20)
-    descripcion = models.CharField(max_length=50)
-    
-    def __str__(self):
-        return f"Nombre: {self.nombre} - Descripcion: {self.descripcion}"
-
-
-
-class Arma(models.Model):
-    nombre = models.CharField(max_length=40)
-    lado = models.CharField(max_length=10)
-    balas = models.IntegerField()
-
-    def __str__(self):
-        return f"Nombre: {self.nombre} - Lado: {self.lado} - Cantidad de balas: {self.balas}"
+        return f"Autor: {self.autor} - Contenido: {self.contenido}"

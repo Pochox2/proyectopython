@@ -1,10 +1,18 @@
-from django.http import HttpResponse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from django.template import loader
+from typing import Any
+from AppCsgo.forms import *
+from AppCsgo.models import Comentario, Blog
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
-from AppCsgo.models import Jugador, Arma, Mapa
-from AppCsgo.forms import JugadorFormu, buscarJug, MapaFormu, ArmaFormu
+from django.template import loader
+from django.urls import reverse_lazy
+
+from django.views.generic import ListView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import  CreateView, UpdateView, DeleteView
 
 
 def principal(self):
@@ -13,137 +21,140 @@ def principal(self):
     documento = plantilla.render()
     return HttpResponse(documento)
 
-def armas(self):
-        plantilla = loader.get_template("armas.html")
+
+def login_request(request):
+
+      if request.method == "POST":
+            form = AuthenticationForm(request, data = request.POST)
+
+            if form.is_valid():
+                  usuario = form.cleaned_data.get("username")
+                  contra = form.cleaned_data.get("password")
+
+                  user = authenticate (username=usuario, password=contra)
+
+                  if user is not None:
+                        login(request, user)
+
+                        return render(request, "./inicio.html", {"mensaje": f"Bienvenido {usuario}"})
+                  else: 
+                        return render(request, "./inicio.html", {"mensaje": "Error: datos incorrectos"})
+            else:
+                        return render(request, "./inicio.html", {"mensaje": "Error: formulario erroneo"})
+            
+      form = AuthenticationForm()
+
+      return render(request, "./login.html", {"form": form})
+
+
+def register(request):
+      if request.method == "POST":
+            form = UserCreationForm(request.POST)
+            if form.is_valid():
+
+                  username = form.cleaned_data['username']
+                  form.save()
+                  return render (request, "./inicio.html", {"mensaje": "Usuario creado"})
+      else:
+
+            form = UserCreationForm()
+
+      return render(request, "./registro.html", {"form":form})
+
+def sobremi(self):
+        plantilla = loader.get_template("sobremi.html")
         documento = plantilla.render()
         return HttpResponse(documento)
 
-class leerMapas(ListView): 
-        model = Mapa
-        template_name = "./mapas_list.html"
+@login_required
+def editarPerfil(request):
 
-class MapaDetalle(DetailView):
-      model = Mapa
-      template_name = "./mapa_detalle.html"
+      usuario = request.user
 
-class MapaCreacion(CreateView):
-      model = Mapa
-      success_url = "/AppCsgo/mapa/list"
-      fields = ["nombre", "descripcion"]
+      if request.method == "POST":
+            miForm = UserEditForm(request.POST)
+            if miForm.is_valid():
 
-class MapaUpdate(UpdateView):
-      model = Mapa
-      success_url = "/AppCsgo/mapa/list"
-      fields = ["nombre", "descripcion"]
-
-class MapaDelete(DeleteView):
-      model = Mapa
-      success_url = "/AppCsgo/mapa/list"
-      
-
-
-def leerJugadores(request):
-      jugadores = Jugador.objects.all()
-
-
-      return render(request, "./leerjugadores.html", {"jugadores": jugadores})
-
-def borrarjug(request, jugador_nombre):
-      jugador = Jugador.objects.get(nombre=jugador_nombre)
-      jugador.delete()
-
-      jugadores = Jugador.objects.all()
-      contexto = {"jugadores": jugadores}
-
-      return render (request, "./leerjugadores.html", contexto)
-
-def editarJug(request, jugador_nombre):
-      jugador = Jugador.objects.get(nombre=jugador_nombre)
-
-      if request.method == 'POST':
-            miForm = JugadorFormu(request.POST)
-
-            print (miForm)
-
-            if miForm.is_valid:
                   informacion = miForm.cleaned_data
-
-                  jugador.nombre = informacion['nombre']
-                  jugador.armafav = informacion['armafav']
-                  jugador.recordkill = informacion['recordkill']
-
-                  jugador.save()
+                  if informacion["password1"] != informacion["password2"]:
+                        datos = {
+                              "username" : usuario.nombre,
+                              "email" : usuario.email
+                        }
+                        miForm=UserEditForm(initial=datos)
+                  else:
+                        usuario.email = informacion ["email"]
+                        usuario.set_password(informacion ["password1"])
+                        usuario.set_password(informacion ["password2"])
+                        usuario.last_name = informacion ["last_name"]
+                        usuario.first_name = informacion ["first_name"]
+                        usuario.save()
 
                   return render(request, "./inicio.html")
             
       else:
-            miForm = JugadorFormu(initial={'nombre': jugador.nombre, 'armafav': jugador.armafav, 'recordkill': jugador.recordkill})
+            miForm = UserEditForm(initial={ "email": usuario.email, "first_name":usuario.first_name, "last_name":usuario.last_name})
 
+      return render(request, "./editarPerfil.html", {"miForm": miForm})
+
+class leerBlogs(LoginRequiredMixin, ListView): 
+        model = Blog
+        context_object_name = "blog"
+        template_name = "./blogs_list.html"
+
+class BlogDetalle(LoginRequiredMixin, DetailView):
+      model = Blog
+      context_object_name = "blog"
+      template_name = "./blog_detalle.html"
+
+      def get_context_data(self, **kwargs):
+       contexto = super().get_context_data(**kwargs)
+       contexto ['usuario'] = self.request.user
+       return contexto
+
+class BlogCreacion(LoginRequiredMixin, CreateView):
+      model = Blog
+      form_class = NewBlog
+      template_name = "./blog_form.html"
+      success_url = reverse_lazy("List")
+      def form_valid(self, form):
+            form.instance.autor = self.request.user
+            return super(BlogCreacion, self).form_valid(form)
+      
+class BlogUpdate(LoginRequiredMixin, UpdateView):
+      model = Blog
+      template_name = "./blog_form1.html" 
+      success_url = reverse_lazy("List")
+      fields = ["titulo", "subtitulo", "cuerpo" , "autor", "fecha", "imagen"]
+
+      def get_object(self, queryset=None):
+            blog = super(BlogUpdate, self).get_object()
+            if blog.autor == self.request.user:
+                  return blog
+            else: 
+                  raise Http404("Este usuario no tiene los permisos necesarios para editar este blog")
             
-            
-      return render(request, "./editarJug.html", {"miForm": miForm, "jugador_nombre":jugador_nombre})
+class BlogDelete(LoginRequiredMixin,  DeleteView):
+      model = Blog
+      success_url = reverse_lazy("List")
 
-def jugadorFormu(request): 
-        if request.method == 'POST':
-               miForm = JugadorFormu(request.POST)
-               print(miForm)
+      def get_object(self, queryset=None):
+            blog = super(BlogDelete, self).get_object()
+            if blog.autor == self.request.user:
+                  return blog
+            else: 
+                  raise Http404("Este usuario no tiene los permisos necesarios para eliminar este blog")
 
-               if miForm.is_valid():
-                informacion = miForm.cleaned_data      
-                jugador = Jugador(nombre=informacion['nombre'], armafav=informacion['armafav'], recordkill=informacion['recordkill'])
-                jugador.save()
-                return render(request,
-                      "./inicio.html")
-        else:
-              miForm = JugadorFormu()
-        
-        return render(request, "./formulario.html", {"miForm":miForm})
+class comentariox(LoginRequiredMixin, CreateView):
+      model = Comentario
+      form_class = ComentarioNuevo
+      template_name = "./comentarios.html"
+      success_url = reverse_lazy("Inicio")
 
-def armaFormu(request): 
-        if request.method == "POST":
-               miForm = ArmaFormu(request.POST)
-               print(miForm)
+      def form_valid(self, form):
+            form.instance.comentario_id = self.kwargs["pk"]
+            form.instance.autor = self.request.user.username
+            return super(comentariox, self).form_valid(form)
+      
 
-               if miForm.is_valid():
-                informacion = miForm.cleaned_data      
-                arma = Arma(nombre=informacion['nombre'], lado=informacion['lado'], balas=informacion['balas'])
-                arma.save()
-                return render(request,
-                      "./inicio.html")
-        else:
-              miForm = ArmaFormu()
-        
-        return render(request, "./formulario.html", {"miForm":miForm})
 
-def mapaFormu(request): 
-        if request.method == "POST":
-               miForm = MapaFormu(request.POST)
-               print(miForm)
-
-               if miForm.is_valid():
-                informacion = miForm.cleaned_data      
-                mapa = Mapa(nombre=informacion['nombre'], descripcion=informacion['descripcion'])
-                mapa.save()
-                return render(request,
-                      "./inicio.html")
-        else:
-              miForm = MapaFormu()
-        
-        return render(request, "./formulario.html", {"miForm":miForm})
-
-   
-
-def buscar(request):
-      if request.method == "POST":
-            miForm = buscarJug(request.POST)
-            print(miForm)
-            if miForm.is_valid():
-                  informacion = miForm.cleaned_data
-                  jugadores = Jugador.objects.filter(nombre__icontains=informacion["nombre"])
-                  return render(request, "./listaj.html", {"jugadores": jugadores})
-            else:
-                  print("\n\n ERROR  IS_VALID FALSE \n\n")
-      else:
-            print(f"\n\n camino del GET \n\n")
-            miForm = buscarJug()
-      return render(request, "./busqueda1.html", {"miForm": miForm})

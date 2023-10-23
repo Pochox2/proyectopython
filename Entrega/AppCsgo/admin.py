@@ -2,11 +2,10 @@ from django.contrib import admin
 from .models import *
 
 
-admin.site.register(Jugador)
+admin.site.register(Blog)
 
-admin.site.register(Arma)
 
-admin.site.register(Mapa)
+admin.site.register(Comentario)
 
 
 

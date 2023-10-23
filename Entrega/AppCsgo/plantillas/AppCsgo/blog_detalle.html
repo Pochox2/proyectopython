@@ -1,0 +1,45 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+    <title> Detalle del blog </title>
+    <section class="blog">
+        <h1>{{blog.titulo}}</h1>
+        <h2>{{blog.subtitulo}}</h2>
+        <img class="blog_img" src="{{blog.imagen.url}}" alt="Imagen del blog: {{blog.titulo}}">
+        
+        <div class="blog_cuerpo">
+            <p>{{blog.cuerpo}}</p>
+        </div>
+
+
+    </section>
+    <section class="comentarios">
+        <h2 style="padding: 50px;">Comentarios del blog</h2>
+        <div>
+            {% if not blog.comentarios.all %}
+                <h4 class="mensaje">Este blog aún no tiene comentarios</h4>
+                <p class="mensaje_p">Se el primero en comentar!</p>
+            {% else %}
+                {% for comentario in blog.comentarios.all %}        
+                    <div class="comentario">
+                        <div class="comentario_nom">
+                            <p>{{comentario.autor}}</p>
+                        </div>
+                        <div class="comentario_cuerpo">
+                            <p>{{comentario.contenido}}</p>
+                            <p>{{comentario.fecha}}</p>
+                        </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+            
+        <div class="btncontainer">
+                
+                <button  class="btn_"><a href="{% url 'Comentarios' blog.pk %}">Comentar</a></button>
+                <button  class="btn_"><a href="{% url 'List' %}">Volver</a></button>
+        </div>
+    </section>
+    {% endblock %}

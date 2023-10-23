@@ -1,0 +1,17 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+    <section>
+        <h2> {{mensaje}} </h2>
+        <form action="" method="POST">
+            {% csrf_token %}
+                {{ form.as_p }}
+            <button type="submit">Iniciar sesion</button>
+        </form>
+      
+    </section>
+
+    {% endblock %}
+

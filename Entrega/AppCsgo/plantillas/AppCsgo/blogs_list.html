@@ -1,0 +1,27 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+    <title>Blogs</title>
+    <section >
+      {%for blog in object_list %}
+      <div class="card mb-3" style="width: 450px;">
+          <img src="{{blog.imagen.url}}" class="card-img-top" alt="Imagen del blog">
+          <div class="card-body">
+            <h5 class="card-title">{{blog.titulo}}</h5>
+            <p class="card-text">{{blog.subtitulo}}</p>
+            <p class="card-text"><small class="text-body-secondary">{{blog.fecha}}</small></p>
+            <p class="card-text"><small class="text-body-secondary">{{blog.autor}}</small></p>
+          </div>
+          <div>
+            <button class="btn_1"><a href="{% url 'Detail' blog.id %}">Ver</a></button>
+            <button class="btn_1"><a href="{% url 'Edit' blog.id %}">Editar</a></button>
+            <button class="btn_1"><a href="{% url 'Delete' blog.id %}">Borrar</a></button>
+          </div>
+        </div>
+      {% endfor %}
+      <button class="createblog"><a href="{% url 'NewB' %}">Crear blog</a></button>
+    </section>
+
+    {% endblock %}

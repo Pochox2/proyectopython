@@ -1,0 +1,18 @@
+{% extends "./padre.html" %}
+
+    {%load static %}
+
+    {%block contenidoQueCambia %}
+    <title> Editor de blogs </title>
+    <section>
+        <h2>Blog a editar:</h2>
+        <form method="post" class="blog_form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="btncontainer">
+                <button type="submit" class="btn_act">Editar</button>
+                <button href="{% url 'List' %}" class="btn_volver">Volver</button>
+            </div>
+        </form>
+    </section>
+    {% endblock %}
