@@ -49,7 +49,7 @@ def login_request(request):
 
 def register(request):
       if request.method == "POST":
-            form = UserCreationForm(request.POST)
+            form = UserRegisterForm(request.POST)
             if form.is_valid():
 
                   username = form.cleaned_data['username']
@@ -57,7 +57,7 @@ def register(request):
                   return render (request, "./inicio.html", {"mensaje": "Usuario creado"})
       else:
 
-            form = UserCreationForm()
+            form = UserRegisterForm()
 
       return render(request, "./registro.html", {"form":form})
 
@@ -78,7 +78,7 @@ def editarPerfil(request):
                   informacion = miForm.cleaned_data
                   if informacion["password1"] != informacion["password2"]:
                         datos = {
-                              "username" : usuario.nombre,
+                              "username" : usuario.username,
                               "email" : usuario.email
                         }
                         miForm=UserEditForm(initial=datos)
