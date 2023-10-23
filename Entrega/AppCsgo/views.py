@@ -137,7 +137,7 @@ class BlogUpdate(LoginRequiredMixin, UpdateView):
 class BlogDelete(LoginRequiredMixin,  DeleteView):
       model = Blog
       success_url = reverse_lazy("List")
-
+      template_name = "./blog_confirm_delete.html"
       def get_object(self, queryset=None):
             blog = super(BlogDelete, self).get_object()
             if blog.autor == self.request.user:
